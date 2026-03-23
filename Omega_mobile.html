@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#080810">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OMEGA">
+<title>OMEGA-PRECOGNITION</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #080810;
+  --surface: #111120;
+  --surface2: #1a1a2e;
+  --border: #2a2a4a;
+  --green: #00ff88;
+  --red: #ff4444;
+  --blue: #00aaff;
+  --gold: #ffaa00;
+  --text: #e0e0e0;
+  --muted: #666;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.app-header {
+  background: linear-gradient(180deg, #0d0d1a 0%, var(--bg) 100%);
+  padding: 1rem 1.2rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.logo {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 15px rgba(0,255,136,0.4);
+  letter-spacing: 0.05em;
+}
+
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.header-date {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+}
+
+/* NAV TABS */
+.nav-tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+  flex: 1;
+  min-width: 70px;
+  padding: 0.7rem 0.5rem;
+  text-align: center;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.nav-tab.active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+  background: rgba(0,255,136,0.05);
+}
+
+/* CONTENT */
+.content { flex: 1; padding: 1rem; overflow-y: auto; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.card-title {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+/* METRICS GRID */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.8rem;
+}
+
+.metric-label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+}
+
+.metric-value.negative { color: var(--red); }
+.metric-value.neutral { color: var(--gold); }
+
+.metric-delta {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+/* SIGNAL ITEMS */
+.signal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.signal-item:last-child { border-bottom: none; }
+
+.signal-asset {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.signal-type {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
+.signal-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.badge-buy {
+  background: rgba(0,255,136,0.15);
+  color: var(--green);
+  border: 1px solid rgba(0,255,136,0.4);
+}
+
+.badge-sell {
+  background: rgba(255,68,68,0.15);
+  color: var(--red);
+  border: 1px solid rgba(255,68,68,0.4);
+}
+
+.conf-bar {
+  width: 40px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.conf-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--green);
+}
+
+/* FEAR GREED GAUGE */
+.fg-gauge {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.fg-value {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.fg-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.fg-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--red) 0%, var(--gold) 50%, var(--green) 100%);
+  margin: 0.8rem 0 0.3rem;
+  position: relative;
+}
+
+.fg-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: -3px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px rgba(255,255,255,0.5);
+  transition: left 0.5s ease;
+}
+
+/* SENTIMENT ROW */
+.sentiment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.sentiment-row:last-child { border-bottom: none; }
+
+.sent-value {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.sent-pos { color: var(--green); }
+.sent-neg { color: var(--red); }
+.sent-neu { color: var(--gold); }
+
+/* UPLOAD SECTION */
+.upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 0.8rem;
+}
+.upload-area:hover { border-color: var(--green); background: rgba(0,255,136,0.03); }
+.upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.upload-label { font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono); }
+.upload-input { display: none; }
+
+/* INSTRUCTIONS */
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.step-num {
+  background: var(--green);
+  color: var(--bg);
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.step-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.step-text strong { color: var(--text); }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0;
+  position: sticky;
+  bottom: 0;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.3rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  gap: 0.2rem;
+}
+
+.bottom-nav-item.active { color: var(--green); }
+.bottom-nav-icon { font-size: 1.3rem; }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+.empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-top">
+      <div class="logo">⚛ OMEGA</div>
+      <div class="live-dot"></div>
+    </div>
+    <div class="header-date" id="headerDate">Caricamento...</div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab('dashboard')">Dashboard</div>
+    <div class="nav-tab" onclick="showTab('signals')">Segnali</div>
+    <div class="nav-tab" onclick="showTab('sentiment')">Sentiment</div>
+    <div class="nav-tab" onclick="showTab('trading')">Trading</div>
+    <div class="nav-tab" onclick="showTab('setup')">Setup</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- DASHBOARD TAB -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Capitale</div>
+          <div class="metric-value" id="capitale">€100k</div>
+          <div class="metric-delta" id="rendimento">+0.00%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">P&L Oggi</div>
+          <div class="metric-value neutral" id="pnlOggi">€0</div>
+          <div class="metric-delta">giornaliero</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Win Rate</div>
+          <div class="metric-value" id="winRate">0%</div>
+          <div class="metric-delta" id="tradeTot">0 trade</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Sharpe</div>
+          <div class="metric-value" id="sharpe">0.000</div>
+          <div class="metric-delta">annualizzato</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎯 Top Segnali Oggi</div>
+        <div id="topSignals">
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            Carica i file CSV nella sezione Setup
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Performance OMEGA vs B&H</div>
+        <canvas id="equityChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <!-- SIGNALS TAB -->
+    <div class="tab-panel" id="tab-signals">
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.8rem">
+        <button onclick="filterSignals('ALL')" class="filter-btn active" id="btn-all">Tutti</button>
+        <button onclick="filterSignals('BUY')" class="filter-btn" id="btn-buy" style="color:var(--green)">▲ BUY</button>
+        <button onclick="filterSignals('SELL')" class="filter-btn" id="btn-sell" style="color:var(--red)">▼ SELL</button>
+      </div>
+      <style>
+        .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 0.4rem 1rem; border-radius: 20px; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.1); }
+      </style>
+      <div class="card">
+        <div id="signalsList">
+          <div class="empty-state"><div class="empty-icon">🎯</div>Nessun segnale caricato</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SENTIMENT TAB -->
+    <div class="tab-panel" id="tab-sentiment">
+      <div class="card">
+        <div class="card-title">😨 Fear & Greed Index</div>
+        <div class="fg-gauge">
+          <div class="fg-value" id="fgValue" style="color:var(--gold)">50</div>
+          <div class="fg-label" id="fgLabel">Neutral</div>
+          <div class="fg-bar">
+            <div class="fg-indicator" id="fgIndicator" style="left:50%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--muted);font-family:var(--font-mono)">
+            <span>FEAR</span><span>NEUTRO</span><span>GREED</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📡 Indicatori Sentiment</div>
+        <div class="sentiment-row">
+          <span>Reddit Overall</span>
+          <span class="sent-value" id="sentReddit">-</span>
+        </div>
+        <div class="sentiment-row">
+          <span>Reddit Crypto</span>
+          <span class="sent-value" id="sentCrypto">-</span>
+        </div>
+        <div class="sentiment-row">
+          <span>News Overall</span>
+          <span class="sent-value" id="sentNews">-</span>
+        </div>
+        <div class="sentiment-row">
+          <span>Score Composito</span>
+          <span class="sent-value" id="sentComposite">-</span>
+        </div>
+        <div class="sentiment-row">
+          <span>Mercato</span>
+          <span class="sent-value" id="sentMercato">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADING TAB -->
+    <div class="tab-panel" id="tab-trading">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Giorni Attivi</div>
+          <div class="metric-value neutral" id="giorniAttivi">0</div>
+          <div class="metric-delta">paper trading</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Trade Totali</div>
+          <div class="metric-value neutral" id="tradeTotali">0</div>
+          <div class="metric-delta" id="winRateTrading">0% win</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Ultimi Trade</div>
+        <div id="tradeLog">
+          <div class="empty-state"><div class="empty-icon">📋</div>Nessun trade registrato</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP TAB -->
+    <div class="tab-panel" id="tab-setup">
+      <div class="card">
+        <div class="card-title">📖 Come Usare OMEGA App</div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">Esegui le <strong>celle Colab</strong> ogni giorno: Cella 1+2 → Sentiment → Paper Trading</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">Apri <strong>Google Drive</strong> sul telefono e scarica i CSV da <code>OMEGA_paper_trading/</code> e <code>OMEGA_sentiment/</code></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">Carica i file qui sotto — l'app li legge e mostra tutto automaticamente</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">Per installare come app: nel browser tocca <strong>Condividi → Aggiungi a schermata Home</strong></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📁 Carica File CSV</div>
+        <div class="upload-area" onclick="document.getElementById('uploadSignals').click()">
+          <div class="upload-icon">🎯</div>
+          <div class="upload-label">Segnali (omega_*_signals.csv)</div>
+          <input class="upload-input" type="file" id="uploadSignals" accept=".csv" onchange="loadCSV(this,'signals')">
+        </div>
+        <div class="upload-area" onclick="document.getElementById('uploadPnl').click()">
+          <div class="upload-icon">💰</div>
+          <div class="upload-label">P&L (paper_trading_pnl.csv)</div>
+          <input class="upload-input" type="file" id="uploadPnl" accept=".csv" onchange="loadCSV(this,'pnl')">
+        </div>
+        <div class="upload-area" onclick="document.getElementById('uploadSent').click()">
+          <div class="upload-icon">🌡️</div>
+          <div class="upload-label">Sentiment (sentiment_report.csv)</div>
+          <input class="upload-input" type="file" id="uploadSent" accept=".csv" onchange="loadCSV(this,'sentiment')">
+        </div>
+        <div class="upload-area" onclick="document.getElementById('uploadLog').click()">
+          <div class="upload-icon">📋</div>
+          <div class="upload-label">Log Trade (paper_trading_log.csv)</div>
+          <input class="upload-input" type="file" id="uploadLog" accept=".csv" onchange="loadCSV(this,'log')">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">ℹ️ Versione</div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);line-height:2">
+          OMEGA-PRECOGNITION v4.0<br>
+          Ensemble 3 modelli (46M parametri)<br>
+          129 asset globali<br>
+          Profit-Weighted Loss<br>
+          <span style="color:var(--green)">Modello AI: INVARIATO</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="bottom-nav-item active" onclick="showTab('dashboard')">
+      <span class="bottom-nav-icon">📊</span>Home
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('signals')">
+      <span class="bottom-nav-icon">🎯</span>Segnali
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('sentiment')">
+      <span class="bottom-nav-icon">🌡️</span>Sentiment
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('trading')">
+      <span class="bottom-nav-icon">💰</span>Trading
+    </div>
+    <div class="bottom-nav-item" onclick="showTab('setup')">
+      <span class="bottom-nav-icon">⚙️</span>Setup
+    </div>
+  </div>
+
+</div>
+
+<script>
+let appData = { signals: [], pnl: [], sentiment: [], log: [] };
+let signalFilter = 'ALL';
+
+// Header date
+document.getElementById('headerDate').textContent = new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).toUpperCase();
+
+// Tab navigation
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = ['dashboard','signals','sentiment','trading','setup'];
+  const idx = tabs.indexOf(name);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  document.querySelectorAll('.bottom-nav-item')[idx].classList.add('active');
+}
+
+// CSV Parser
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/"/g,''));
+    return Object.fromEntries(headers.map((h,i) => [h, vals[i] || '']));
+  });
+}
+
+function loadCSV(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    appData[type] = parseCSV(e.target.result);
+    updateUI();
+    input.closest('.upload-area').style.borderColor = 'var(--green)';
+    input.closest('.upload-area').querySelector('.upload-icon').textContent = '✅';
+  };
+  reader.readAsText(file);
+}
+
+function updateUI() {
+  updateDashboard();
+  updateSignals();
+  updateSentiment();
+  updateTrading();
+}
+
+function updateDashboard() {
+  const pnl = appData.pnl;
+  if (pnl.length > 0) {
+    const last = pnl[pnl.length - 1];
+    const cap = parseFloat(last.capitale) || 100000;
+    const rend = parseFloat(last.rendimento_pct) || 0;
+    const wr = parseFloat(last.win_rate) || 0;
+    const sh = parseFloat(last.sharpe) || 0;
+    const pnlOggi = parseFloat(last.pnl_oggi) || 0;
+    const trades = parseInt(last.trade_totali) || 0;
+
+    document.getElementById('capitale').textContent = '€' + cap.toLocaleString('it-IT', {maximumFractionDigits:0});
+    document.getElementById('rendimento').textContent = (rend >= 0 ? '+' : '') + rend.toFixed(2) + '%';
+    document.getElementById('capitale').className = 'metric-value' + (rend >= 0 ? '' : ' negative');
+    document.getElementById('pnlOggi').textContent = (pnlOggi >= 0 ? '+€' : '-€') + Math.abs(pnlO
